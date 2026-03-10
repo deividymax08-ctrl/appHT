@@ -6,3 +6,6 @@ coverage/
 *.log
 .env*
 !.env.example
+data/
+sistema-gestao/node_modules/
+sistema-gestao/banco_dados_clientes/

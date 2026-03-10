@@ -2,9 +2,7 @@
 -- Database: postgres
 
 -- Remove tabelas que possam ter sido criadas pela metade para evitar conflitos
-DROP TABLE IF EXISTS history_logs CASCADE;
 DROP TABLE IF EXISTS configs CASCADE;
-DROP TABLE IF EXISTS other_services CASCADE;
 DROP TABLE IF EXISTS packages CASCADE;
 DROP TABLE IF EXISTS service_orders CASCADE;
 DROP TABLE IF EXISTS budget_items CASCADE;
@@ -102,16 +100,6 @@ CREATE TABLE packages (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Other Services table
-CREATE TABLE other_services (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    description TEXT,
-    price DECIMAL(10, 2) NOT NULL,
-    user_id TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
 -- Config table
 CREATE TABLE configs (
     id TEXT PRIMARY KEY,
@@ -119,18 +107,6 @@ CREATE TABLE configs (
     key TEXT NOT NULL UNIQUE,
     value JSONB NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- History table
-CREATE TABLE history_logs (
-    id TEXT PRIMARY KEY,
-    entity_type TEXT NOT NULL,
-    entity_id TEXT,
-    entity_name TEXT,
-    action TEXT NOT NULL,
-    data JSONB,
-    user_id TEXT,
-    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Inserção de Seed Data Inicial (Serviços) 

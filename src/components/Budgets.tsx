@@ -1,11 +1,11 @@
 import React from 'react';
-import { 
-  Plus, 
-  Search, 
-  FileText, 
-  Download, 
-  FileSpreadsheet, 
-  Trash2, 
+import {
+  Plus,
+  Search,
+  FileText,
+  Download,
+  FileSpreadsheet,
+  Trash2,
   Eye,
   CheckCircle,
   X,
@@ -25,7 +25,7 @@ export function Budgets() {
   const [budgets, setBudgets] = React.useState<Budget[]>([]);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState('');
-  
+
   // Form State
   const [selectedClient, setSelectedClient] = React.useState<Client | null>(null);
   const [items, setItems] = React.useState<BudgetItem[]>([]);
@@ -42,7 +42,7 @@ export function Budgets() {
   const laborTotal = items
     .filter(i => i.type === 'service')
     .reduce((acc, curr) => acc + curr.totalPrice, 0);
-  
+
   const materialsTotal = items
     .filter(i => i.type === 'material')
     .reduce((acc, curr) => acc + curr.totalPrice, 0);
@@ -52,10 +52,10 @@ export function Budgets() {
   const updateStatus = (id: string, status: Budget['status']) => {
     const budget = budgets.find(b => b.id === id);
     if (!budget) return;
-    
+
     const updated = { ...budget, status };
     db.saveBudget(updated);
-    
+
     // If approved, automatically create a Service Order
     if (status === 'approved') {
       const order = {
@@ -65,7 +65,7 @@ export function Budgets() {
       };
       db.saveOrder(order);
     }
-    
+
     setBudgets(db.getBudgets());
   };
 
@@ -73,7 +73,7 @@ export function Budgets() {
     if (type === 'service') {
       const service = allServices.find(s => s.id === id);
       if (!service) return;
-      
+
       const newItem: BudgetItem = {
         id: crypto.randomUUID(),
         type: 'service',
@@ -102,13 +102,13 @@ export function Budgets() {
             } as BudgetItem;
           })
           .filter(i => i !== null) as BudgetItem[];
-        
+
         setItems(prev => [...prev, ...suggestedItems]);
       }
     } else {
       const material = allMaterials.find(m => m.id === id);
       if (!material) return;
-      
+
       const newItem: BudgetItem = {
         id: crypto.randomUUID(),
         type: 'material',
@@ -186,7 +186,7 @@ export function Budgets() {
       doc.text('Hidra', 20, 25);
       doc.setTextColor(220, 38, 38);
       doc.text('Elétrica PRO', 42, 25);
-      
+
       doc.setTextColor(150, 150, 150);
       doc.setFontSize(10);
       doc.text('ORÇAMENTO PROFISSIONAL', 150, 25);
@@ -273,7 +273,7 @@ export function Budgets() {
           <h2 className="text-3xl font-bold text-white">Orçamentos</h2>
           <p className="text-zinc-400">Crie e gerencie propostas comerciais.</p>
         </div>
-        <button 
+        <button
           onClick={() => setIsModalOpen(true)}
           className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition-colors"
         >
@@ -284,7 +284,7 @@ export function Budgets() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {budgets.map((budget) => (
-          <motion.div 
+          <motion.div
             key={budget.id}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -302,9 +302,9 @@ export function Budgets() {
                 budget.status === 'completed' && "bg-emerald-500/10 text-emerald-500",
                 budget.status === 'cancelled' && "bg-red-500/10 text-red-500"
               )}>
-                {budget.status === 'pending' ? 'Pendente' : 
-                 budget.status === 'approved' ? 'Aprovado' : 
-                 budget.status === 'completed' ? 'Concluído' : 'Cancelado'}
+                {budget.status === 'pending' ? 'Pendente' :
+                  budget.status === 'approved' ? 'Aprovado' :
+                    budget.status === 'completed' ? 'Concluído' : 'Cancelado'}
               </span>
             </div>
 
@@ -324,14 +324,14 @@ export function Budgets() {
               <div className="flex gap-2">
                 {budget.status === 'pending' && (
                   <>
-                    <button 
+                    <button
                       onClick={() => updateStatus(budget.id, 'approved')}
                       className="p-2 text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-colors"
                       title="Aprovar Orçamento"
                     >
                       <CheckCircle size={18} />
                     </button>
-                    <button 
+                    <button
                       onClick={() => updateStatus(budget.id, 'cancelled')}
                       className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
                       title="Negar Orçamento"
@@ -340,19 +340,31 @@ export function Budgets() {
                     </button>
                   </>
                 )}
-                <button 
+                <button
                   onClick={() => generatePDF(budget)}
                   className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors"
                   title="Gerar PDF"
                 >
                   <Download size={18} />
                 </button>
-                <button 
+                <button
                   onClick={() => generateExcel(budget)}
                   className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors"
                   title="Exportar Materiais"
                 >
                   <FileSpreadsheet size={18} />
+                </button>
+                <button
+                  onClick={() => {
+                    if (confirm('Tem certeza que deseja excluir este orçamento?')) {
+                      db.deleteBudget(budget.id);
+                      setBudgets(db.getBudgets());
+                    }
+                  }}
+                  className="p-2 text-zinc-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                  title="Excluir Orçamento"
+                >
+                  <Trash2 size={18} />
                 </button>
               </div>
             </div>
@@ -367,7 +379,7 @@ export function Budgets() {
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col"
@@ -384,7 +396,7 @@ export function Budgets() {
               <div className="lg:col-span-1 space-y-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-zinc-500 uppercase">1. Selecionar Cliente</label>
-                  <select 
+                  <select
                     onChange={(e) => setSelectedClient(clients.find(c => c.id === e.target.value) || null)}
                     className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-red-600/50"
                   >
@@ -397,7 +409,7 @@ export function Budgets() {
                   <label className="text-xs font-bold text-zinc-500 uppercase">2. Adicionar Serviços</label>
                   <div className="max-h-48 overflow-y-auto border border-zinc-800 rounded-xl bg-zinc-950 divide-y divide-zinc-800">
                     {allServices.map(s => (
-                      <button 
+                      <button
                         key={s.id}
                         onClick={() => addItem('service', s.id)}
                         className="w-full text-left px-4 py-2 text-sm text-zinc-400 hover:bg-zinc-900 hover:text-white flex justify-between items-center"
@@ -413,7 +425,7 @@ export function Budgets() {
                   <label className="text-xs font-bold text-zinc-500 uppercase">3. Adicionar Materiais</label>
                   <div className="max-h-48 overflow-y-auto border border-zinc-800 rounded-xl bg-zinc-950 divide-y divide-zinc-800">
                     {allMaterials.map(m => (
-                      <button 
+                      <button
                         key={m.id}
                         onClick={() => addItem('material', m.id)}
                         className="w-full text-left px-4 py-2 text-sm text-zinc-400 hover:bg-zinc-900 hover:text-white flex justify-between items-center"
@@ -449,8 +461,8 @@ export function Budgets() {
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <input 
-                              type="number" 
+                            <input
+                              type="number"
                               min="1"
                               value={item.quantity}
                               onChange={(e) => updateItemQuantity(item.id, parseInt(e.target.value) || 1)}
@@ -460,8 +472,8 @@ export function Budgets() {
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-1">
                               <span className="text-xs text-zinc-500">R$</span>
-                              <input 
-                                type="number" 
+                              <input
+                                type="number"
                                 step="0.01"
                                 min="0"
                                 value={item.unitPrice}
@@ -500,8 +512,8 @@ export function Budgets() {
                     <span className="text-zinc-400">Desconto:</span>
                     <div className="flex items-center gap-2">
                       <span className="text-zinc-500">R$</span>
-                      <input 
-                        type="number" 
+                      <input
+                        type="number"
                         value={discount}
                         onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
                         className="w-24 bg-zinc-950 border border-zinc-800 rounded px-2 py-1 text-white text-right"
@@ -518,7 +530,7 @@ export function Budgets() {
 
             <div className="p-6 border-t border-zinc-800 bg-zinc-950/50 flex justify-end gap-3">
               <button onClick={() => setIsModalOpen(false)} className="px-6 py-2 text-zinc-400 hover:text-white font-medium">Cancelar</button>
-              <button 
+              <button
                 onClick={handleSave}
                 className="px-8 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all transform hover:scale-105"
               >

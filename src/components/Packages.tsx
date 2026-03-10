@@ -105,10 +105,8 @@ export function Packages() {
 
   const handleDelete = (id: string) => {
     if (confirm('Tem certeza que deseja excluir este pacote?')) {
-      // Assuming a delete function isn't perfectly mapped, we just update local state and re-save everything (or implement delete on db.ts).
-      // For now, let's let the user know they can't delete directly if deletePackage doesn't exist, 
-      // but let's assume it's omitted for safety and just hide it or filter it out.
-      alert('Exclusão de pacote será adicionada em breve.');
+      db.deletePackage(id);
+      setPackages(db.getPackages());
     }
   };
 
@@ -178,6 +176,13 @@ export function Packages() {
                 title="Editar Pacote"
               >
                 <Edit2 size={18} />
+              </button>
+              <button
+                onClick={() => handleDelete(pkg.id)}
+                className="text-zinc-500 hover:text-red-500 transition-colors"
+                title="Excluir Pacote"
+              >
+                <Trash2 size={18} />
               </button>
               <button className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl text-sm font-bold transition-colors">
                 Usar este Pacote

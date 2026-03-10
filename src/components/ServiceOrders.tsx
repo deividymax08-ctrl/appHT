@@ -1,11 +1,12 @@
 import React from 'react';
-import { 
-  ClipboardCheck, 
-  Calendar, 
-  User, 
+import {
+  ClipboardCheck,
+  Calendar,
+  User,
   Search,
   Clock,
-  MoreVertical
+  MoreVertical,
+  Trash2
 } from 'lucide-react';
 import { db } from '../db';
 import { ServiceOrder } from '../types';
@@ -23,18 +24,18 @@ export function ServiceOrders() {
   const completeOrder = (order: ServiceOrder) => {
     const updatedOrder = { ...order, status: 'completed' as const, endDate: new Date().toISOString() };
     db.saveOrder(updatedOrder);
-    
+
     // Also update the original budget status
     const budgets = db.getBudgets();
     const budget = budgets.find(b => b.id === order.budgetId);
     if (budget) {
       db.saveBudget({ ...budget, status: 'completed' });
     }
-    
+
     setOrders(db.getOrders());
   };
 
-  const filtered = orders.filter(o => 
+  const filtered = orders.filter(o =>
     o.clientName.toLowerCase().includes(searchTerm.toLowerCase()) && o.status !== 'completed'
   );
 
@@ -49,7 +50,7 @@ export function ServiceOrders() {
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
-        <input 
+        <input
           type="text"
           placeholder="Buscar por cliente..."
           value={searchTerm}
@@ -60,7 +61,7 @@ export function ServiceOrders() {
 
       <div className="grid grid-cols-1 gap-4">
         {filtered.map((order) => (
-          <motion.div 
+          <motion.div
             key={order.id}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -90,15 +91,27 @@ export function ServiceOrders() {
                 <p className="text-[10px] text-zinc-500 uppercase font-bold">Valor do Contrato</p>
                 <p className="text-xl font-black text-white">{formatCurrency(order.total)}</p>
               </div>
-              
+
               <div className="flex items-center gap-2">
                 <span className="px-3 py-1 bg-amber-500/10 text-amber-500 text-xs font-bold rounded-full uppercase">Em Execução</span>
-                <button 
+                <button
                   onClick={() => completeOrder(order)}
                   className="p-2 text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-colors"
                   title="Concluir Serviço"
                 >
                   <ClipboardCheck size={20} />
+                </button>
+                <button
+                  onClick={() => {
+                    if (confirm('Tem certeza que deseja excluir esta ordem de serviço?')) {
+                      db.deleteOrder(order.id);
+                      setOrders(db.getOrders());
+                    }
+                  }}
+                  className="p-2 text-zinc-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                  title="Excluir Ordem de Serviço"
+                >
+                  <Trash2 size={20} />
                 </button>
               </div>
             </div>

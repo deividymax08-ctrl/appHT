@@ -165,14 +165,11 @@ export const db = {
   },
   deleteClient: (id: string) => {
     const clients = db.getClients();
-    const client = clients.find(c => c.id === id);
-    if (client) {
-      db.setSync(STORAGE_KEYS.CLIENTS, clients.filter(c => c.id !== id));
-      triggerEvent();
+    db.setSync(STORAGE_KEYS.CLIENTS, clients.filter(c => c.id !== id));
+    triggerEvent();
 
-      if (supabase) {
-        supabase.from('clients').delete().eq('id', id).then(({ error }) => { if (error) console.error("Client Delete Erro:", error); });
-      }
+    if (supabase) {
+      supabase.from('clients').delete().eq('id', id).then(({ error }) => { if (error) console.error("Client Delete Erro:", error); });
     }
   },
 
@@ -224,6 +221,17 @@ export const db = {
       }
     }
   },
+  deleteBudget: async (id: string) => {
+    const budgets = db.getBudgets();
+    db.setSync(STORAGE_KEYS.BUDGETS, budgets.filter(b => b.id !== id));
+    triggerEvent();
+
+    if (supabase) {
+      await supabase.from('budget_items').delete().eq('budget_id', id);
+      const { error } = await supabase.from('budgets').delete().eq('id', id);
+      if (error) console.error("Budget Delete Erro:", error);
+    }
+  },
 
   // Service Orders
   getOrders: (): ServiceOrder[] => db.get(STORAGE_KEYS.SERVICE_ORDERS, []),
@@ -248,6 +256,14 @@ export const db = {
         status: order.status || 'pending',
         total: order.total || 0
       }).then(({ error }) => { if (error) console.error("Orders Erro:", error); });
+    }
+  },
+  deleteOrder: (id: string) => {
+    const orders = db.getOrders();
+    db.setSync(STORAGE_KEYS.SERVICE_ORDERS, orders.filter(o => o.id !== id));
+    triggerEvent();
+    if (supabase) {
+      supabase.from('service_orders').delete().eq('id', id).then(({ error }) => { if (error) console.error("Order Delete Erro:", error); });
     }
   },
 
@@ -280,6 +296,14 @@ export const db = {
       }).then(({ error }) => { if (error) console.error("Materials Erro:", error); });
     }
   },
+  deleteMaterial: (id: string) => {
+    const materials = db.getMaterials();
+    db.setSync(STORAGE_KEYS.MATERIALS, materials.filter(m => m.id !== id));
+    triggerEvent();
+    if (supabase) {
+      supabase.from('materials').delete().eq('id', id).then(({ error }) => { if (error) console.error("Material Delete Erro:", error); });
+    }
+  },
 
   getServices: (): Service[] => {
     const stored = db.get(STORAGE_KEYS.SERVICES, null);
@@ -308,6 +332,14 @@ export const db = {
       }).then(({ error }) => { if (error) console.error("Services Erro:", error); });
     }
   },
+  deleteService: (id: string) => {
+    const services = db.getServices();
+    db.setSync(STORAGE_KEYS.SERVICES, services.filter(s => s.id !== id));
+    triggerEvent();
+    if (supabase) {
+      supabase.from('services').delete().eq('id', id).then(({ error }) => { if (error) console.error("Service Delete Erro:", error); });
+    }
+  },
 
   getPackages: (): any[] => db.get(STORAGE_KEYS.PACKAGES, []),
   savePackage: (pkg: any) => {
@@ -323,6 +355,14 @@ export const db = {
       supabase.from('packages').upsert({
         id: pkg.id, name: pkg.name, description: pkg.description, price: pkg.price, items: pkg.items
       }).then(({ error }) => { if (error) console.error("Packages Erro:", error); });
+    }
+  },
+  deletePackage: (id: string) => {
+    const pkgs = db.getPackages();
+    db.setSync(STORAGE_KEYS.PACKAGES, pkgs.filter(p => p.id !== id));
+    triggerEvent();
+    if (supabase) {
+      supabase.from('packages').delete().eq('id', id).then(({ error }) => { if (error) console.error("Package Delete Erro:", error); });
     }
   },
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Package, Wrench, Edit2, X, Save, RotateCcw, Plus } from 'lucide-react';
+import { Search, Package, Wrench, Edit2, X, Save, RotateCcw, Plus, Trash2 } from 'lucide-react';
 import { db } from '../db';
 import { Material } from '../types';
 import { formatCurrency, cn } from '../lib/utils';
@@ -111,9 +111,20 @@ export function MaterialCatalog({ category }: CatalogProps) {
                   <td className="px-6 py-4 text-right">
                     <button
                       onClick={() => handleEdit(material)}
-                      className="p-2 text-zinc-500 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                      className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
                     >
                       <Edit2 size={16} />
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm('Tem certeza que deseja excluir este material?')) {
+                          db.deleteMaterial(material.id);
+                          setMaterials(db.getMaterials().filter(m => m.category === category));
+                        }
+                      }}
+                      className="p-2 text-zinc-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                    >
+                      <Trash2 size={16} />
                     </button>
                   </td>
                 </tr>

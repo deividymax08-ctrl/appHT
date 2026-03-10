@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Zap, Droplets, X, Package, Edit2, Save, RotateCcw, Plus } from 'lucide-react';
+import { Search, Zap, Droplets, X, Package, Edit2, Save, RotateCcw, Plus, Trash2 } from 'lucide-react';
 import { db } from '../db';
 import { Service, Material } from '../types';
 import { formatCurrency, cn } from '../lib/utils';
@@ -248,6 +248,19 @@ export function ServiceCatalog({ category }: CatalogProps) {
                     >
                       <Edit2 size={18} />
                       Editar
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm('Tem certeza que deseja excluir este serviço?')) {
+                          db.deleteService(selectedService.id);
+                          handleClose();
+                          setServices(db.getServices().filter(s => s.category === category));
+                        }
+                      }}
+                      className="p-2 text-zinc-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                      title="Excluir Serviço"
+                    >
+                      <Trash2 size={18} />
                     </button>
                     <button
                       onClick={handleClose}

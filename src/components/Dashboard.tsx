@@ -1,8 +1,8 @@
 import React from 'react';
-import { 
-  TrendingUp, 
-  Users, 
-  FileText, 
+import {
+  TrendingUp,
+  Users,
+  FileText,
   CheckCircle2,
   ArrowUpRight,
   ArrowDownRight
@@ -95,24 +95,51 @@ export function Dashboard() {
         <div className="p-6 bg-zinc-900 border border-zinc-800 rounded-2xl">
           <h3 className="text-lg font-semibold text-white mb-6">Distribuição de Serviços</h3>
           <div className="space-y-6">
-            <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-zinc-400">Elétricos</span>
-                <span className="text-white font-medium">65%</span>
-              </div>
-              <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
-                <div className="h-full bg-red-600 w-[65%]" />
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-zinc-400">Hidráulicos</span>
-                <span className="text-white font-medium">35%</span>
-              </div>
-              <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
-                <div className="h-full bg-blue-600 w-[35%]" />
-              </div>
-            </div>
+            {(() => {
+              const services = db.getServices();
+              const electricCount = budgets.filter(b => {
+                const items = b.items || [];
+                return items.some(i => {
+                  const s = services.find(srv => srv.id === i.itemId);
+                  return s?.category === 'eletrico';
+                });
+              }).length;
+
+              const hydraulicCount = budgets.filter(b => {
+                const items = b.items || [];
+                return items.some(i => {
+                  const s = services.find(srv => srv.id === i.itemId);
+                  return s?.category === 'hidraulico';
+                });
+              }).length;
+
+              const totalCount = electricCount + hydraulicCount || 1;
+              const elePerc = Math.round((electricCount / totalCount) * 100);
+              const hydPerc = Math.round((hydraulicCount / totalCount) * 100);
+
+              return (
+                <>
+                  <div>
+                    <div className="flex justify-between text-sm mb-2">
+                      <span className="text-zinc-400">Elétricos</span>
+                      <span className="text-white font-medium">{elePerc}%</span>
+                    </div>
+                    <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                      <div className="h-full bg-red-600 transition-all duration-500" style={{ width: `${elePerc}%` }} />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-2">
+                      <span className="text-zinc-400">Hidráulicos</span>
+                      <span className="text-white font-medium">{hydPerc}%</span>
+                    </div>
+                    <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                      <div className="h-full bg-blue-600 transition-all duration-500" style={{ width: `${hydPerc}%` }} />
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
       </div>

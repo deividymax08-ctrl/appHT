@@ -30,12 +30,11 @@ const menuItems = [
   { id: 'materials-hyd', label: 'Materiais Hidráulicos', icon: Wrench },
   { id: 'packages', label: 'Pacotes de Serviços', icon: ClipboardList },
   { id: 'orders', label: 'Ordem de Serviço', icon: ClipboardList },
-  { id: 'files', label: 'Central de Arquivos', icon: HardDrive },
   { id: 'reports', label: 'Relatórios', icon: BarChart3 },
   { id: 'settings', label: 'Configurações', icon: Settings },
 ];
 
-import { HardDrive } from 'lucide-react';
+
 
 export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
   const [isOpen, setIsOpen] = React.useState(true);
